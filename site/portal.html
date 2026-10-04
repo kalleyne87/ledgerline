@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northfield Hardware | AP Invoice Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f5f0e4;--card:#fffdf7;--ink:#12302a;--soft:#5b6b64;--line:#dcd5c2;--green:#1d6b4f;--greenbg:#e3f1e8;--amber:#a6620c;--amberbg:#fbeccd;--red:#b03a2a;--redbg:#f8ddd7;--rule:#cfe0d6}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;
+ background:var(--paper) repeating-linear-gradient(to bottom,transparent 0 31px,rgba(29,107,79,.07) 31px 32px)}
+[hidden]{display:none!important}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid #d9981c;outline-offset:3px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+header{max-width:1180px;margin:0 auto;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:600;letter-spacing:-.01em}
+.mark{width:34px;height:34px;border-radius:9px;background:var(--ink);display:grid;place-content:center}
+.mark i{display:block;width:16px;height:2px;background:#8fd1b3;margin:2.5px 0;border-radius:2px}
+.mark i:nth-child(2){width:11px}
+.pill{font-size:13px;color:var(--soft);border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px}
+main{max-width:1180px;margin:0 auto;padding:8px 28px 80px}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:400;font-size:clamp(34px,5vw,56px);line-height:1.04;letter-spacing:-.02em;margin:18px 0 12px;max-width:760px}
+h1 em{font-style:italic;color:var(--green)}
+.lede{color:var(--soft);font-size:18px;max-width:600px;margin:0 0 30px}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 1px 0 rgba(18,48,42,.04),0 12px 30px -18px rgba(18,48,42,.25)}
+.drop{padding:26px}
+.zone{border:2px dashed #9fb8aa;border-radius:16px;min-height:250px;display:grid;place-content:center;text-align:center;padding:28px;transition:.15s;background:#fbf9f1;cursor:pointer}
+.zone.over{border-color:var(--green);background:var(--greenbg);transform:scale(1.01)}
+.zone.busy{pointer-events:none;opacity:.75}
+.zone .icon{width:58px;height:70px;margin:0 auto 14px;position:relative}
+.zone h2{font-family:"Fraunces",serif;font-weight:400;font-size:26px;margin:0 0 4px}
+.zone p{margin:0;color:var(--soft);font-size:15px}
+.zone u{color:var(--green);text-underline-offset:3px}
+.samples{margin-top:22px}
+.samples h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin:0 0 10px;font-weight:600}
+.chips{display:grid;gap:8px}
+.chip{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;color:var(--ink);transition:.12s}
+.chip:hover{border-color:var(--green);transform:translateY(-1px)}
+.chip b{font-weight:600;display:block;font-size:15px}
+.chip span{color:var(--soft);font-size:13px}
+.chip .go{font-size:13px;color:var(--green);white-space:nowrap;font-weight:600}
+.note{font-size:13px;color:var(--soft);margin:16px 2px 0}
+.badge{display:inline-block;font-size:12px;background:var(--amberbg);color:var(--amber);padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.stage{padding:26px;min-height:560px}
+.empty{height:100%;min-height:500px;display:grid;place-content:center;text-align:center;color:var(--soft)}
+.empty .big{font-family:"Fraunces",serif;font-size:26px;color:var(--ink);margin-bottom:6px}
+.steps{display:grid;gap:0;margin:0 0 22px;padding:0;list-style:none}
+.steps li{display:flex;gap:14px;align-items:center;padding:9px 0;color:#9aa59f;transition:.25s;position:relative}
+.steps li .dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-content:center;font-size:13px;flex:none;background:#fff;transition:.25s}
+.steps li.on{color:var(--ink)}
+.steps li.on .dot{border-color:var(--green);border-top-color:transparent;animation:spin .8s linear infinite}
+.steps li.done{color:var(--ink)}
+.steps li.done .dot{background:var(--green);border-color:var(--green);color:#fff;animation:none}
+.steps li.done .dot::after{content:'\2713';font-size:13px}
+.steps li .t{margin-left:auto;font-size:12px;color:var(--soft)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.result{animation:rise .45s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.banner{display:flex;gap:14px;align-items:center;border-radius:14px;padding:16px 18px;margin-bottom:18px}
+.banner.ok{background:var(--greenbg);color:#14503a}
+.banner.review{background:var(--amberbg);color:#7a4607}
+.banner.bad{background:var(--redbg);color:#7f2518}
+.banner .ic{width:38px;height:38px;border-radius:50%;display:grid;place-content:center;font-size:20px;color:#fff;flex:none}
+.ok .ic{background:var(--green)}.review .ic{background:var(--amber)}.bad .ic{background:var(--red)}
+.banner b{font-family:"Fraunces",serif;font-size:22px;font-weight:600;display:block;line-height:1.15}
+.banner small{font-size:14px;opacity:.85}
+.btn{display:inline-block;margin-top:10px;background:var(--ink);color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:600;text-decoration:none;font-size:14px}
+.cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px}
+.inv{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.inv h4,.chk h4{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);font-weight:600}
+.vendor{font-family:"Fraunces",serif;font-size:21px;font-weight:600;line-height:1.2;margin-bottom:10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin-bottom:12px}
+.kv dt{color:var(--soft)}.kv dd{margin:0;text-align:right}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:6px 0;border-top:1px solid var(--line);text-align:right}
+th{font-size:11px;color:var(--soft);font-weight:500;text-transform:uppercase;letter-spacing:.06em;border-top:0}
+td:first-child,th:first-child{text-align:left}
+td+td,th+th{padding-left:14px}
+.tot{display:flex;justify-content:space-between;border-top:2px solid var(--ink);margin-top:8px;padding-top:8px;font-weight:600;font-size:18px}
+.fill{opacity:0;animation:rise .4s ease forwards}
+.chk{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.chk ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.chk li{display:flex;gap:10px;font-size:14px;line-height:1.35;opacity:0;animation:rise .35s ease forwards}
+.chk li .m{width:20px;height:20px;border-radius:50%;flex:none;display:grid;place-content:center;font-size:12px;color:#fff;margin-top:1px}
+.chk li.pass .m{background:var(--green)}.chk li.fail .m{background:var(--red)}
+.chk li.fail{color:#7f2518;font-weight:500}
+.chk li small{display:block;color:var(--soft);font-weight:400}
+.ledger{margin-top:28px;padding:22px 26px}
+.ledger h3{font-family:"Fraunces",serif;font-weight:400;font-size:24px;margin:0 0 4px}
+.ledger p{margin:0 0 12px;color:var(--soft);font-size:14px}
+.ledger table{font-size:14px}
+.ledger td,.ledger th{padding:9px 6px}
+.st{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.st.ok{background:var(--greenbg);color:#14503a}.st.review{background:var(--amberbg);color:#7a4607}
+.ledger .none{color:var(--soft);padding:16px 0;text-align:left;border:0}
+.foot{margin-top:26px;font-size:13px;color:var(--soft);text-align:center}
+.foot a{color:var(--ink)}
+.login{max-width:440px;margin:40px auto 0;padding:34px}
+.login h1{font-size:34px;margin:0 0 6px}
+.login p{color:var(--soft);margin:0 0 22px}
+.login label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+.login input{width:100%;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.login input:focus{outline:3px solid #d9981c;outline-offset:1px;border-color:#d9981c}
+.login .btn{width:100%;margin-top:20px;padding:13px;font-size:16px;border-radius:12px}
+.err{color:var(--red);font-size:14px;margin-top:12px;min-height:20px}
+.hint{margin-top:18px;background:var(--amberbg);color:#7a4607;border-radius:12px;padding:10px 14px;font-size:13px}
+.hint code{font-family:"IBM Plex Mono",monospace}
+.who{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--soft)}
+.who button{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--ink);font-size:13px}
+.brand{color:inherit;text-decoration:none}
+.tool{font-family:"Instrument Sans",sans-serif;font-size:13px;font-weight:600;color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.ai{display:flex;gap:18px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px}
+.score{flex:none;width:96px;height:96px;border-radius:50%;display:grid;place-content:center;text-align:center;border:6px solid var(--line)}
+.score b{font-size:28px;font-weight:500;line-height:1}.score span{font-size:10px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+.score.good{border-color:var(--green)}.score.mid{border-color:#d9981c}.score.low{border-color:var(--red)}
+.aibody h4{margin:0 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);font-weight:600}
+.aibody p{margin:0 0 8px;font-size:14px;color:var(--soft)}.aibody .quiet{color:var(--ink)}
+.chg,.iss{margin:6px 0 0;padding-left:18px;font-size:14px}.chg li,.iss li{margin:5px 0}.chg small{display:block;color:var(--soft)}.iss li{color:#7f2518}
+.sheetnote{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:14px;background:var(--greenbg);border-radius:14px;padding:14px 18px;font-size:14px;color:#14503a}
+.sheetnote .btn{margin:0;white-space:nowrap}
+.live{display:inline-flex;align-items:center;gap:8px;font-size:13px;margin-top:10px}
+.live i{width:9px;height:9px;border-radius:50%;background:var(--amber);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media(max-width:900px){.grid,.cols{grid-template-columns:1fr}.stage{min-height:0}.empty{min-height:220px}header,main{padding-left:16px;padding-right:16px}.ledger{overflow-x:auto}}
+@media(max-width:600px){#whoName{display:none}.tool{display:none}header{flex-wrap:nowrap}.brand{font-size:21px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>Northfield <span class="tool">Invoice Desk</span></a>
+  <div class="who" id="who" hidden><span id="whoName"></span><button id="signout">Sign out</button></div>
+</header>
+<main id="loginView">
+  <section class="card login">
+    <h1>Invoice Desk</h1>
+    <p>Sign in with your Northfield account to process vendor invoices.</p>
+    <form id="loginForm" novalidate>
+      <label for="em">Email</label><input id="em" type="email" autocomplete="username" required>
+      <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
+      <button class="btn" type="submit">Sign in</button>
+      <div class="err" id="loginErr" role="alert"></div>
+    </form>
+    <div class="hint" id="hint" hidden>Demo account: <code id="hintEm"></code> / <code id="hintPw"></code></div>
+  </section>
+</main>
+<main id="appView" hidden>
+  <h1>Process vendor <em>invoices.</em></h1>
+  <p class="lede">Drop in the invoices your vendors send. Each one is read, quality-checked by AI, stored, and sent to the finance sheet. Anything unusual goes to a reviewer first.</p>
+
+  <div class="grid">
+    <section class="card drop" aria-label="Upload">
+      <div class="zone" id="zone" tabindex="0" role="button" aria-label="Choose or drop a PDF invoice">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 58 70" width="58" height="70"><path d="M6 2h30l16 16v48a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#fff" stroke="#1d6b4f" stroke-width="2.5"/><path d="M36 2v16h16" fill="#e3f1e8" stroke="#1d6b4f" stroke-width="2.5"/><path d="M13 32h30M13 40h30M13 48h18" stroke="#9fb8aa" stroke-width="3" stroke-linecap="round"/></svg>
+        </div>
+        <h2>Drop your PDF here</h2>
+        <p>or <u>browse your files</u></p>
+        <input id="file" type="file" accept="application/pdf,.pdf" hidden>
+      </div>
+      <p class="note"><span class="badge" id="preview" hidden>Preview mode</span></p>
+    </section>
+
+    <section class="card stage" aria-live="polite" id="stage">
+      <div class="empty" id="empty"><div><div class="big">Ready for an invoice</div>Results appear here as it is processed.</div></div>
+      <div id="run" hidden>
+        <ol class="steps" id="steps"></ol>
+        <div id="out"></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card ledger" aria-label="Recent invoices">
+    <h3>Invoice log</h3>
+    <p>Invoices you have processed, with their status and AI quality score.</p>
+    <table><thead><tr><th>Vendor</th><th>Invoice</th><th>Total</th><th>Due</th><th>AI score</th><th>Status</th></tr></thead><tbody id="rows"><tr><td class="none" colspan="6">Nothing filed yet.</td></tr></tbody></table>
+  </section>
+  <p class="foot">Northfield Hardware <a href="case-study.html">Read how it works</a> &middot; <a href="index.html">Back to the main site</a></p>
+</main>
+
+<script src="config.js"></script>
+<script>
+const URL_ = window.LEDGERLINE_UPLOAD_URL || '';
+const LOGIN = window.LEDGERLINE_LOGIN || {email:'demo@northfield.test',password:'invoices123',userName:'Dana Reyes',userRole:'Accounts Payable',showHint:true};
+const CLIENT = LOGIN.userName;
+const SHEET_URL = window.LEDGERLINE_SHEET_URL || '';
+const STATUS_URL = URL_.replace(/ledgerline-invoice(?=\/?$|\?)/,'ledgerline-status');
+const params = new URLSearchParams(location.search);
+const MOCK = params.has('mock') || !/^https?:\/\//.test(URL_);
+document.getElementById('preview').hidden = !MOCK;
+const $ = id => document.getElementById(id);
+const zone=$('zone'), fileIn=$('file');
+const STEPS=['Invoice received','Reading the PDF','AI is extracting the details','AI quality review','Running the checks','Storing in the finance sheet'];
+let busy=false;
+function signedIn(){try{return sessionStorage.getItem('ledgerline-in')==='1'}catch(e){return false}}
+function showApp(on){$('loginView').hidden=on;$('appView').hidden=!on;$('who').hidden=!on;if(on)$('whoName').textContent=CLIENT+(LOGIN.userRole?', '+LOGIN.userRole:'')}
+$('hint').hidden=!LOGIN.showHint;$('hintEm').textContent=LOGIN.email;$('hintPw').textContent=LOGIN.password;
+$('loginForm').addEventListener('submit',e=>{e.preventDefault();
+  if($('em').value.trim().toLowerCase()===String(LOGIN.email).toLowerCase()&&$('pw').value===LOGIN.password){
+    try{sessionStorage.setItem('ledgerline-in','1')}catch(x){}
+    $('loginErr').textContent='';showApp(true);drawLedger(readLedger());
+  }else{$('loginErr').textContent='That email and password do not match.'}
+});
+$('signout').addEventListener('click',()=>{try{sessionStorage.removeItem('ledgerline-in')}catch(e){}showApp(false);$('pw').value=''});
+showApp(signedIn());
+
+zone.addEventListener('click',()=>!busy&&fileIn.click());
+zone.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!busy){e.preventDefault();fileIn.click()}});
+fileIn.addEventListener('change',()=>fileIn.files[0]&&start(fileIn.files[0]));
+['dragenter','dragover'].forEach(t=>zone.addEventListener(t,e=>{e.preventDefault();zone.classList.add('over')}));
+['dragleave','drop'].forEach(t=>zone.addEventListener(t,e=>{e.preventDefault();zone.classList.remove('over')}));
+zone.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f&&!busy)start(f)});
+const money=(n,c)=>n==null||n===''?'?':new Intl.NumberFormat('en-US',{style:'currency',currency:c||'USD'}).format(n);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+function renderSteps(){ $('steps').innerHTML=STEPS.map((s,i)=>`<li data-i="${i}"><span class="dot"></span>${s}<span class="t"></span></li>`).join('') }
+function setStep(i,state,t){const li=$('steps').children[i];if(!li)return;li.className=state;if(t)li.querySelector('.t').textContent=t}
+
+async function start(file){
+  if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf'){return showError('Please choose a PDF file.')}
+  busy=true;zone.classList.add('busy');
+  $('empty').hidden=true;$('run').hidden=false;$('out').innerHTML='';renderSteps();
+  const t0=performance.now();
+  setStep(0,'done');await sleep(350);setStep(1,'on');await sleep(650);setStep(1,'done');setStep(2,'on');
+  let data;
+  try{ data = MOCK ? await mockCall(file) : await realCall(file) }
+  catch(e){busy=false;zone.classList.remove('busy');fileIn.value='';return showError(e.message||'Something went wrong.')}
+  const secs=((performance.now()-t0)/1000).toFixed(1);
+  setStep(2,'done');
+  if(data.ok===false){
+    [3,4,5].forEach(i=>setStep(i,'done'));
+    $('out').innerHTML=`<div class="banner bad result"><div class="ic">!</div><div><b>We could not read that PDF</b><small>It looks like a scan with no text. Please upload a text-based PDF.</small></div></div>`;
+    return finish();
+  }
+  for(const i of [3,4,5]){setStep(i,'on');await sleep(420);setStep(i,i===5?'done':'done',i===5?secs+'s total':'')}
+  render(data);
+  record(data);
+  finish();
+  if(data.needsReview)watch(data);
+}
+async function watch(d){
+  const key=keyOf(d);
+  const live=document.createElement('div');live.className='live';live.innerHTML='<i></i>Waiting for the reviewer';
+  const bn=document.querySelector('#out .banner > div:last-child');if(bn)bn.appendChild(live);
+  const t0=Date.now();
+  while(Date.now()-t0<600000){
+    await sleep(MOCK?6000:4000);
+    if(!document.body.contains(live))return;
+    let st='pending';
+    try{ st=MOCK?'Approved by reviewer':(await (await fetch(STATUS_URL+'?key='+encodeURIComponent(key))).json()).status }catch(e){}
+    if(st&&st!=='pending'){
+      const rej=/reject/i.test(st);
+      const b=document.querySelector('#out .banner');
+      if(b){b.className='banner '+(rej?'bad':'ok')+' result';b.querySelector('.ic').innerHTML=rej?'&#10005;':'&#10003;';
+        b.querySelector('b').textContent=rej?'Rejected by the reviewer':'Approved by the reviewer';
+        b.querySelector('small').textContent=rej?'This invoice will not be paid. See the reviewer note in the finance sheet.':'The flag was reviewed and cleared. The sheet row is updated.';
+        const a=b.querySelector('.btn');if(a)a.remove();live.remove()}
+      setRowStatus(key,rej?'Rejected':'Approved',rej);return;
+    }
+  }
+}
+function finish(){busy=false;zone.classList.remove('busy');fileIn.value=''}
+
+async function realCall(file){
+  const fd=new FormData();fd.append('Invoice',file,file.name);fd.append('submittedBy',CLIENT);
+  let res;
+  try{res=await fetch(URL_,{method:'POST',body:fd})}catch(e){throw new Error('Could not reach the workflow. Check the URL in config.js and that the workflow is published.')}
+  if(!res.ok)throw new Error('The workflow answered with an error ('+res.status+').');
+  return res.json();
+}
+
+function checksFor(d){
+  const R=(d.reasons||[]).join(' | ');
+  const f=re=>re.test(R);
+  return [
+    ['All the fields were found', f(/Missing|Could not read/), (R.match(/Missing[^|]*|Could not read[^|]*/)||[''])[0].trim()],
+    ['Line items match the subtotal', f(/Line items add up/), (R.match(/Line items add up[^|]*/)||[''])[0].trim()],
+    ['Subtotal plus tax matches the total', f(/Subtotal plus tax/), (R.match(/Subtotal plus tax[^|]*/)||[''])[0].trim()],
+    ['Within the $1,000 auto-approval limit', f(/auto-approval limit/), 'Needs a person to approve it'],
+    ['PO number on file', f(/No PO number/), 'No PO number on an invoice over $500'],
+    ['Not a duplicate', f(/duplicate/), 'This invoice was already processed'],
+    ['Not past due', f(/past due/), 'The due date has already passed'],
+    ['The AI was confident in its reading', f(/low confidence/), 'It marked its own reading as low confidence'],
+  ];
+}
+
+function render(d){
+  const c=d.currency||'USD';
+  const rows=(d.lineItems||[]).map((i,k)=>`<tr class="fill" style="animation-delay:${.15+k*.12}s"><td>${esc(i.description||'')}</td><td class="mono">${esc(i.quantity??'')}</td><td class="mono">${i.amount!=null&&i.amount!==''?money(Number(i.amount),c):''}</td></tr>`).join('');
+  const checks=checksFor(d);
+  const ok=!d.needsReview;
+  const reasonCount=(d.reasons||[]).length;
+  $('out').innerHTML=`<div class="result">
+    <div class="banner ${ok?'ok':'review'}"><div class="ic">${ok?'&#10003;':'&#9998;'}</div>
+      <div><b>${ok?'Approved and stored':'Sent to a reviewer'}</b>
+      <small>${ok?'Everything checked out, so it was stored without anyone having to touch it.':reasonCount+(reasonCount===1?' thing needs':' things need')+' a human look. The reviewer has been messaged in Slack.'}</small>
+      ${!ok&&d.reviewUrl?`<br><a class="btn" href="${esc(d.reviewUrl)}" target="_blank" rel="noopener">Open the review form</a>`:''}</div></div>
+    <div class="cols">
+      <div class="inv"><h4>What we read</h4>
+        <div class="vendor fill">${esc(d.vendor||'Unknown vendor')}</div>
+        <dl class="kv fill" style="animation-delay:.1s"><dt>Invoice</dt><dd class="mono">${esc(d.invoiceNumber||'?')}</dd><dt>Dated</dt><dd class="mono">${esc(d.invoiceDate||'?')}</dd><dt>Due</dt><dd class="mono">${esc(d.dueDate||'?')}</dd><dt>PO</dt><dd class="mono">${esc(d.poNumber||'None')}</dd></dl>
+        <table><thead><tr><th>Item</th><th>Qty</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>
+        <div class="tot fill" style="animation-delay:.7s"><span>Total</span><span class="mono">${money(d.total,c)}</span></div>
+      </div>
+      <div class="chk"><h4>What we checked</h4><ul>${checks.map((k,i)=>`<li class="${k[1]?'fail':'pass'}" style="animation-delay:${.2+i*.18}s"><span class="m">${k[1]?'!':'&#10003;'}</span><span>${k[0]}${k[1]&&k[2]?`<small>${esc(k[2])}</small>`:''}</span></li>`).join('')}</ul></div>
+    </div>
+    ${aiPanel(d)}
+    <div class="sheetnote fill" style="animation-delay:1.9s"><span><b>Stored in the finance sheet.</b> A new row was added with the extracted fields, status, AI score and any AI changes.</span>${SHEET_URL?`<a class="btn" href="${esc(SHEET_URL)}" target="_blank" rel="noopener">Open the finance sheet</a>`:''}</div>
+  </div>`;
+}
+function aiPanel(d){
+  const sc=d.qcScore;const ch=d.changes||[];const iss=d.qcIssues||[];
+  const tone=sc==null?'':(sc>=85?'good':(sc>=70?'mid':'low'));
+  return `<div class="ai fill" style="animation-delay:1.5s"><div class="score ${tone}"><b class="mono">${sc==null?'-':esc(sc)}</b><span>AI quality score</span></div>
+    <div class="aibody"><h4>What the AI reviewed</h4>
+      <p>A second AI pass compared the extracted data with the original invoice text.</p>
+      ${ch.length?`<ul class="chg">${ch.map(c=>`<li><span class="mono">${esc(c.field)}</span> changed from <s>${esc(c.from)}</s> to <b>${esc(c.to)}</b>${c.reason?`<small>${esc(c.reason)}</small>`:''}</li>`).join('')}</ul>`:'<p class="quiet">No changes were needed.</p>'}
+      ${iss.length?`<ul class="iss">${iss.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:''}
+    </div></div>`;
+}
+
+function keyOf(d){return String(d.vendor||'').toLowerCase().trim()+'|'+String(d.invoiceNumber||'').toLowerCase().trim()}
+function readLedger(){try{return JSON.parse(localStorage.getItem('ledgerline-rows')||'[]').filter(r=>r.cl===CLIENT)}catch(e){return[]}}
+function allRows(){try{return JSON.parse(localStorage.getItem('ledgerline-rows')||'[]')}catch(e){return[]}}
+function record(d){
+  const rows=allRows();
+  rows.unshift({k:keyOf(d),cl:CLIENT,q:d.qcScore,v:d.vendor,n:d.invoiceNumber,t:d.total,c:d.currency||'USD',due:d.dueDate,r:!!d.needsReview});
+  try{localStorage.setItem('ledgerline-rows',JSON.stringify(rows.slice(0,8)))}catch(e){}
+  drawLedger(readLedger());
+}
+function setRowStatus(key,label,rejected){
+  const rows=allRows();const r=rows.find(x=>x.k===key&&x.cl===CLIENT);if(!r)return;
+  r.r=false;r.s=label;r.x=!!rejected;
+  try{localStorage.setItem('ledgerline-rows',JSON.stringify(rows))}catch(e){}
+  drawLedger(readLedger());
+}
+function drawLedger(rows){
+  $('rows').innerHTML=rows.length?rows.map(r=>`<tr><td>${esc(r.v)}</td><td class="mono">${esc(r.n)}</td><td class="mono">${money(r.t,r.c)}</td><td class="mono">${esc(r.due)}</td><td class="mono">${r.q==null?'-':esc(r.q)}</td><td><span class="st ${r.r?'review':(r.x?'review':'ok')}">${r.r?'In review':(r.s||'Approved')}</span></td></tr>`).join(''):'<tr><td class="none" colspan="6">Nothing filed yet.</td></tr>';
+}
+
+function showError(msg){
+  $('empty').hidden=true;$('run').hidden=false;$('steps').innerHTML='';
+  $('out').innerHTML=`<div class="banner bad result"><div class="ic">!</div><div><b>That did not work</b><small>${esc(msg)}</small></div></div>`;
+}
+
+/* Preview mode: canned answers (rotating scenarios) so the page can be shown before n8n is connected. */
+let mockN=0;
+async function mockCall(file){
+  await sleep(1800);
+  const base={ok:true,currency:'USD',confidence:'high',received:new Date().toISOString(),reviewUrl:'',submittedBy:CLIENT};
+  const pick=mockN++%3;
+  if(pick===0)return{...base,vendor:'Maple & Main Office Supply',invoiceNumber:'INV-20418',invoiceDate:'2026-09-28',dueDate:'2026-10-28',poNumber:'PO-3381',subtotal:421.5,tax:33.72,total:455.22,
+    lineItems:[{description:'Copy paper, 10 cases',quantity:10,amount:170},{description:'Toner cartridges',quantity:2,amount:178},{description:'Desk organizers',quantity:7,amount:73.5}],
+    reasons:[],needsReview:false,qcScore:96,changes:[{field:'vendor',from:'MAPLE & MAIN  office supply',to:'Maple & Main Office Supply',reason:'Fixed capitalization and spacing so the vendor matches earlier invoices'}],qcIssues:[]};
+  if(pick===1)return{...base,vendor:'Harbor Print Co.',invoiceNumber:'INV-0059',invoiceDate:'2026-09-22',dueDate:'2026-10-06',poNumber:'',subtotal:840,tax:0,total:840,
+    lineItems:[{description:'Brochures, 500 qty',quantity:1,amount:420},{description:'Business cards, 1000 qty',quantity:1,amount:180},{description:'Banner stand',quantity:1,amount:180}],
+    reasons:['Line items add up to 780.00 but the subtotal says 840.00','No PO number on an invoice over $500'],needsReview:true,qcScore:62,changes:[],qcIssues:['AI quality score is low (62 of 100)']};
+  return{...base,vendor:'Northgate IT Services',invoiceNumber:'INV-7731',invoiceDate:'2026-09-30',dueDate:'2026-10-30',poNumber:'PO-3390',subtotal:4860,tax:0,total:4860,
+    lineItems:[{description:'Network setup, 32 hours',quantity:32,amount:3200},{description:'Firewall license, annual',quantity:1,amount:1450},{description:'Cable and patch panel',quantity:1,amount:210}],
+    reasons:['Over the $1,000 auto-approval limit'],needsReview:true,qcScore:91,changes:[],qcIssues:[]};
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1275 @@
+{
+  "name": "Northfield Hardware - AP Invoice Desk",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Intake\nAn AP team member drops a vendor invoice on the internal invoice desk page, which sends it to this webhook. Scanned images with no text are caught early.",
+        "height": 520,
+        "width": 780,
+        "color": 7
+      },
+      "id": "note-1-intake",
+      "name": "Note 1. Intake",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. AI extraction\nClaude reads the invoice and returns structured data.",
+        "height": 520,
+        "width": 280,
+        "color": 4
+      },
+      "id": "note-2-ai-extraction",
+      "name": "Note 2. AI extraction",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        760,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. Checks and AI quality review\nCode checks the math, duplicates, limits and missing fields. A second AI pass compares the data to the original text, scores it and proposes small clean-ups. The result goes straight back to the web page, then clean invoices skip review.",
+        "height": 700,
+        "width": 560,
+        "color": 6
+      },
+      "id": "note-3-checks-and-ai-quality-review",
+      "name": "Note 3. Checks and AI quality review",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4. Human review\nA person approves or rejects flagged invoices from a link in Slack.",
+        "height": 700,
+        "width": 1000,
+        "color": 5
+      },
+      "id": "note-4-human-review",
+      "name": "Note 4. Human review",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5. Log and notify\nEvery invoice is stored in the finance Google Sheet with its status, AI score and changes, and a summary posts to Slack.",
+        "height": 700,
+        "width": 1000,
+        "color": 3
+      },
+      "id": "note-5-log-and-notify",
+      "name": "Note 5. Log and notify",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3400,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Live status\nThe web page asks this endpoint whether a flagged invoice has been approved yet, so the client sees the decision appear.",
+        "height": 260,
+        "width": 780,
+        "color": 6
+      },
+      "id": "note-live-status",
+      "name": "Note Live status",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Due-soon reminder\nEvery weekday morning, Slack lists approved invoices due in the next 3 days.",
+        "height": 340,
+        "width": 1360,
+        "color": 2
+      },
+      "id": "note-due-soon-reminder",
+      "name": "Note Due-soon reminder",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ledgerline-invoice",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "upload-webhook",
+      "name": "Invoice Upload",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        340
+      ],
+      "webhookId": "ledgerline-invoice"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "ledgerline-status",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "status-webhook",
+      "name": "Status Check",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1160
+      ],
+      "webhookId": "ledgerline-status"
+    },
+    {
+      "parameters": {
+        "jsCode": "const key = String(($input.first().json.query || {}).key || '').toLowerCase().trim();\nconst sd = $getWorkflowStaticData('global');\nreturn [{ json: { status: (sd.decisions || {})[key] || 'pending' } }];"
+      },
+      "id": "lookup",
+      "name": "Look Up Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: $json.status } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-status",
+      "name": "Respond Status",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Invoice",
+        "options": {}
+      },
+      "id": "extract-pdf",
+      "name": "Read PDF Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "text-found",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ ($json.text || '').trim().length > 40 }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "text-found",
+      "name": "Text Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, reason: 'unreadable' } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-unreadable",
+      "name": "Respond Unreadable",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#invoice-approvals",
+          "mode": "name"
+        },
+        "text": ":warning: *Invoice could not be read*\nThe PDF has no readable text (it may be a scan). Please upload a text-based PDF or enter it by hand.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "slack-unreadable",
+      "name": "Slack Unreadable",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Invoice text:\n{{ ($json.text || '').slice(0, 12000) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You extract data from vendor invoices for a bookkeeping firm. Reply with ONLY a JSON object, no markdown, using exactly these keys: vendor (string), invoice_number (string), invoice_date (YYYY-MM-DD), due_date (YYYY-MM-DD, or empty string if absent), currency (3-letter code), po_number (string, empty if absent), payment_terms (string), subtotal (number), tax (number, 0 if none), total (number), line_items (array of {description, quantity, unit_price, amount}), confidence (\"high\", \"medium\" or \"low\", based on how clearly the document states these values). Copy numbers exactly as printed, even if they look wrong. Never calculate or correct them. Use an empty string or 0 for anything the document does not state. Never guess."
+            }
+          ]
+        }
+      },
+      "id": "extract-ai",
+      "name": "AI Extract Invoice Data",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        820,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5-5",
+          "mode": "id"
+        },
+        "options": {
+          "temperature": 0,
+          "maxTokensToSample": 1500
+        }
+      },
+      "id": "claude",
+      "name": "Claude",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        840,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Raw invoice text:\n{{ ($('Read PDF Text').first().json.text || '').slice(0, 12000) }}\n\nExtracted data:\n{{ JSON.stringify({ vendor: $json.vendor, invoice_number: $json.invoiceNumber, invoice_date: $json.invoiceDate, due_date: $json.dueDate, po_number: $json.poNumber, payment_terms: $json.terms, subtotal: $json.subtotal, tax: $json.tax, total: $json.total, line_items: $json.lineItems }) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a quality reviewer for an accounts payable team. You are given the raw text of a vendor invoice and the data a previous step extracted from it. Check the extracted data against the raw text. Reply with ONLY a JSON object with these keys: verdict (\"ok\" or \"concern\"), score (integer 0 to 100, how confident you are that the extracted data is accurate and complete), issues (array of short plain-language strings, only real problems such as a value that does not match the text, a suspicious or unusual item, or something that looks altered), changes (array of {field, from, to, reason} for small clean-ups only, where field is one of vendor, po_number or payment_terms, such as fixing capitalization or stray spacing so the vendor name is consistent). Never change amounts, dates or invoice numbers. Do not invent problems. If everything matches, return verdict ok, an empty issues array and an empty changes array."
+            }
+          ]
+        }
+      },
+      "id": "qc-ai",
+      "name": "AI Quality Review",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5-5",
+          "mode": "id"
+        },
+        "options": {
+          "temperature": 0,
+          "maxTokensToSample": 1200
+        }
+      },
+      "id": "claude-qc",
+      "name": "Claude QC",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Parse and Check').first().json;\nconst raw = String($input.first().json.text ?? '');\nlet q = null;\ntry { q = JSON.parse(raw.replace(/```json|```/g, '').trim()); } catch (e) { q = null; }\nconst out = { ...base, qcScore: null, changes: [] };\nconst reasons = [...(base.reasons || [])];\nif (!q) {\n  reasons.push('The AI quality review could not be completed');\n} else {\n  out.qcScore = Number.isFinite(Number(q.score)) ? Number(q.score) : null;\n  const allowed = { vendor: 'vendor', po_number: 'poNumber', payment_terms: 'terms' };\n  for (const c of (Array.isArray(q.changes) ? q.changes : [])) {\n    const key = allowed[c && c.field];\n    if (key && c.to && String(base[key]) === String(c.from) && String(c.to) !== String(c.from)) {\n      out[key] = String(c.to);\n      out.changes.push({ field: c.field, from: String(c.from), to: String(c.to), reason: String(c.reason || '') });\n    }\n  }\n  if (q.verdict === 'concern') {\n    for (const i of (Array.isArray(q.issues) ? q.issues : [])) reasons.push('AI review: ' + String(i));\n  }\n  if (out.qcScore !== null && out.qcScore < 70) reasons.push('AI quality score is low (' + out.qcScore + ' of 100)');\n}\nout.reasons = reasons;\nout.needsReview = reasons.length > 0;\nout.qcIssues = reasons.filter(r => r.startsWith('AI review:') || r.startsWith('AI quality') || r.startsWith('The AI quality')).map(r => r.replace(/^AI review: /, ''));\nreturn [{ json: out }];"
+      },
+      "id": "apply-qc",
+      "name": "Apply Quality Review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst raw = String(input.text ?? '');\nlet d = null;\ntry { d = JSON.parse(raw.replace(/```json|```/g, '').trim()); } catch (e) { d = null; }\nconst submittedBy = String((($('Invoice Upload').first().json.body) || {}).submittedBy || '').slice(0, 80);\nconst reasons = [];\nif (!d) reasons.push('Could not read the invoice details');\nd = d || {};\nconst num = (v) => { const n = Number(String(v ?? '').replace(/[^0-9.\\-]/g, '')); return Number.isFinite(n) && String(v ?? '') !== '' ? n : null; };\nconst items = Array.isArray(d.line_items) ? d.line_items : [];\nconst subtotal = num(d.subtotal);\nconst tax = num(d.tax) ?? 0;\nconst total = num(d.total);\nconst itemsSum = items.reduce((s, i) => s + (num(i.amount) || 0), 0);\nconst money = (n) => (n === null ? '?' : n.toFixed(2));\n\nif (!d.vendor) reasons.push('Missing vendor');\nif (!d.invoice_number) reasons.push('Missing invoice number');\nif (total === null) reasons.push('Missing total');\nif (!d.due_date) reasons.push('Missing due date');\nif (items.length && subtotal !== null && Math.abs(itemsSum - subtotal) > 0.02) {\n  reasons.push(`Line items add up to ${money(itemsSum)} but the subtotal says ${money(subtotal)}`);\n}\nif (subtotal !== null && total !== null && Math.abs(subtotal + tax - total) > 0.02) {\n  reasons.push(`Subtotal plus tax is ${money(subtotal + tax)} but the total says ${money(total)}`);\n}\nif (total !== null && total > 1000) reasons.push('Over the $1,000 auto-approval limit');\nif (total !== null && total > 500 && !d.po_number) reasons.push('No PO number on an invoice over $500');\nif (d.confidence === 'low') reasons.push('The AI marked its own reading as low confidence');\n\nif (d.due_date) {\n  const due = new Date(d.due_date);\n  if (!isNaN(due) && due < new Date(new Date().toDateString())) reasons.push('Already past due');\n}\n\nconst sd = $getWorkflowStaticData('global');\nsd.seen = sd.seen || {};\nif (d.vendor && d.invoice_number) {\n  const key = String(d.vendor).toLowerCase().trim() + '|' + String(d.invoice_number).toLowerCase().trim();\n  if (sd.seen[key]) reasons.push('Possible duplicate: this invoice was already processed');\n  else sd.seen[key] = new Date().toISOString();\n}\n\nconst needsReview = reasons.length > 0;\nreturn [{ json: {\n  submittedBy,\n  vendor: d.vendor || '',\n  invoiceNumber: d.invoice_number || '',\n  invoiceDate: d.invoice_date || '',\n  dueDate: d.due_date || '',\n  currency: d.currency || 'USD',\n  subtotal, tax, total,\n  poNumber: d.po_number || '',\n  terms: d.payment_terms || '',\n  lineItems: items,\n  confidence: d.confidence || '',\n  reasons,\n  needsReview,\n  received: new Date().toISOString(),\n  summary: `${d.vendor || 'Unknown vendor'} invoice ${d.invoice_number || '?'} for ${d.currency || 'USD'} ${money(total)}, due ${d.due_date || 'unknown'}`\n}}];"
+      },
+      "id": "parse",
+      "name": "Parse and Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ Object.assign({ ok: true }, $json, { reviewUrl: $json.needsReview ? $execution.resumeFormUrl : '' }) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-result",
+      "name": "Respond Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "needs-review",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.needsReview }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "needs-review",
+      "name": "Needs Review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#invoice-approvals",
+          "mode": "name"
+        },
+        "text": "={{ `:mag: *Invoice needs review*\n${$('Apply Quality Review').first().json.summary}\n*Why it was flagged*\n${$('Apply Quality Review').first().json.reasons.map(r => '\u2022 ' + r).join('\\n')}\n<${$execution.resumeFormUrl}|Open the review form>` }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "slack-review-request",
+      "name": "Slack Review Request",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2440,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Review invoice",
+        "formDescription": "={{ $('Apply Quality Review').first().json.summary + '. Flagged: ' + $('Apply Quality Review').first().json.reasons.join('; ') }}",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Decision",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Approve"
+                  },
+                  {
+                    "option": "Reject"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Note",
+              "fieldType": "text",
+              "requiredField": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wait-review",
+      "name": "Wait for Reviewer",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2700,
+        160
+      ],
+      "webhookId": "ledgerline-review"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.Decision }}",
+              "rightValue": "Approve"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "approved",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2940,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "status",
+              "value": "Approved by reviewer",
+              "type": "string"
+            },
+            {
+              "id": "s2",
+              "name": "reviewNote",
+              "value": "={{ $json.Note || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "set-approved",
+      "name": "Set Approved",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3200,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "status",
+              "value": "Rejected",
+              "type": "string"
+            },
+            {
+              "id": "s2",
+              "name": "reviewNote",
+              "value": "={{ $json.Note || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "set-rejected",
+      "name": "Set Rejected",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3200,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "status",
+              "value": "Auto-approved",
+              "type": "string"
+            },
+            {
+              "id": "s2",
+              "name": "reviewNote",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "set-auto-approved",
+      "name": "Set Auto Approved",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2700,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Apply Quality Review').first().json;\nconst s = $input.first().json;\nconst sd = $getWorkflowStaticData('global');\nsd.decisions = sd.decisions || {};\nif (base.vendor && base.invoiceNumber) {\n  sd.decisions[String(base.vendor).toLowerCase().trim() + '|' + String(base.invoiceNumber).toLowerCase().trim()] = s.status;\n}\nreturn [{ json: {\n  ...base,\n  status: s.status,\n  reviewNote: s.reviewNote || '',\n  reasonsText: (base.reasons || []).join('; '),\n  changesText: (base.changes || []).map(c => `${c.field}: ${c.from} -> ${c.to}`).join('; ')\n}}];"
+      },
+      "id": "finalize",
+      "name": "Finalize Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3440,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Received": "={{ $json.received }}",
+            "Submitted By": "={{ $json.submittedBy }}",
+            "Vendor": "={{ $json.vendor }}",
+            "Invoice Number": "={{ $json.invoiceNumber }}",
+            "Invoice Date": "={{ $json.invoiceDate }}",
+            "Due Date": "={{ $json.dueDate }}",
+            "Currency": "={{ $json.currency }}",
+            "Subtotal": "={{ $json.subtotal }}",
+            "Tax": "={{ $json.tax }}",
+            "Total": "={{ $json.total }}",
+            "PO Number": "={{ $json.poNumber }}",
+            "Status": "={{ $json.status }}",
+            "Review Reasons": "={{ $json.reasonsText }}",
+            "Reviewer Note": "={{ $json.reviewNote }}",
+            "AI Quality Score": "={{ $json.qcScore }}",
+            "AI Changes": "={{ $json.changesText }}",
+            "Summary": "={{ $json.summary }}",
+            "Paid": ""
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Received",
+              "displayName": "Received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submitted By",
+              "displayName": "Submitted By",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "displayName": "Vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Date",
+              "displayName": "Invoice Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Due Date",
+              "displayName": "Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subtotal",
+              "displayName": "Subtotal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tax",
+              "displayName": "Tax",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total",
+              "displayName": "Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PO Number",
+              "displayName": "PO Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Review Reasons",
+              "displayName": "Review Reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reviewer Note",
+              "displayName": "Reviewer Note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Quality Score",
+              "displayName": "AI Quality Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Changes",
+              "displayName": "AI Changes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Paid",
+              "displayName": "Paid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-log",
+      "name": "Log to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3700,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#invoice-approvals",
+          "mode": "name"
+        },
+        "text": "={{ `${$('Finalize Record').first().json.status === 'Rejected' ? ':x:' : ':white_check_mark:'} *Invoice ${$('Finalize Record').first().json.status}*\n${$('Finalize Record').first().json.summary}\nLogged to the invoice sheet.${$('Finalize Record').first().json.reviewNote ? '\\nReviewer note: ' + $('Finalize Record').first().json.reviewNote : ''}` }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "slack-summary",
+      "name": "Slack Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3960,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule",
+      "name": "Weekday 9 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {}
+      },
+      "id": "sheets-read",
+      "name": "Read Invoice Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        900
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r && r['Vendor']);\nconst today = new Date(new Date().toDateString());\nconst soon = rows.filter(r => {\n  const ok = /approved/i.test(String(r['Status'] || ''));\n  const unpaid = !String(r['Paid'] || '').trim();\n  const due = new Date(r['Due Date']);\n  if (!ok || !unpaid || isNaN(due)) return false;\n  const days = Math.round((due - today) / 86400000);\n  return days >= 0 && days <= 3;\n});\nconst text = soon.length\n  ? `:calendar: *Invoices due in the next 3 days*\\n` + soon.map(r => `\u2022 ${r['Vendor']} ${r['Invoice Number']}  ${r['Currency'] || ''} ${r['Total']}  due ${r['Due Date']}`).join('\\n')\n  : ':calendar: *Invoices due in the next 3 days*\\nNothing due soon.';\nreturn [{ json: { text } }];"
+      },
+      "id": "due-soon",
+      "name": "Find Due Soon",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        900
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#invoice-approvals",
+          "mode": "name"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "slack-due-soon",
+      "name": "Slack Due Soon",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        780,
+        900
+      ]
+    }
+  ],
+  "connections": {
+    "Invoice Upload": {
+      "main": [
+        [
+          {
+            "node": "Read PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Text Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Found?": {
+      "main": [
+        [
+          {
+            "node": "AI Extract Invoice Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Unreadable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond Unreadable": {
+      "main": [
+        [
+          {
+            "node": "Slack Unreadable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Extract Invoice Data": {
+      "main": [
+        [
+          {
+            "node": "Parse and Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and Check": {
+      "main": [
+        [
+          {
+            "node": "AI Quality Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Quality Review": {
+      "main": [
+        [
+          {
+            "node": "Apply Quality Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Quality Review": {
+      "main": [
+        [
+          {
+            "node": "Respond Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond Result": {
+      "main": [
+        [
+          {
+            "node": "Needs Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Review?": {
+      "main": [
+        [
+          {
+            "node": "Slack Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Auto Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Review Request": {
+      "main": [
+        [
+          {
+            "node": "Wait for Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Reviewer": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Set Approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Approved": {
+      "main": [
+        [
+          {
+            "node": "Finalize Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Rejected": {
+      "main": [
+        [
+          {
+            "node": "Finalize Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Auto Approved": {
+      "main": [
+        [
+          {
+            "node": "Finalize Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finalize Record": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Slack Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Check": {
+      "main": [
+        [
+          {
+            "node": "Look Up Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look Up Decision": {
+      "main": [
+        [
+          {
+            "node": "Respond Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekday 9 AM": {
+      "main": [
+        [
+          {
+            "node": "Read Invoice Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Invoice Sheet": {
+      "main": [
+        [
+          {
+            "node": "Find Due Soon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Due Soon": {
+      "main": [
+        [
+          {
+            "node": "Slack Due Soon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude QC": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Quality Review",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Extract Invoice Data",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

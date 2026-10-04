@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northfield Hardware</title>
+<meta name="description" content="Northfield Hardware: tools, building materials and home and garden products since 1974.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f5f0e4;--card:#fffdf7;--ink:#12302a;--soft:#5b6b64;--line:#dcd5c2;--green:#1d6b4f;--greenbg:#e3f1e8;--amber:#a6620c;--amberbg:#fbeccd}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:17px;line-height:1.55;
+ background:var(--paper) repeating-linear-gradient(to bottom,transparent 0 31px,rgba(29,107,79,.07) 31px 32px)}
+a{color:inherit}
+:focus-visible{outline:3px solid #d9981c;outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0;gap:16px}
+.tool{font-family:"Instrument Sans",sans-serif;font-size:13px;font-weight:600;color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.brand{display:flex;align-items:center;gap:12px;font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:600;text-decoration:none;letter-spacing:-.01em}
+.mark{width:34px;height:34px;border-radius:9px;background:var(--ink);display:grid;place-content:center}
+.mark i{display:block;width:16px;height:2px;background:#8fd1b3;margin:2.5px 0;border-radius:2px}.mark i:nth-child(2){width:11px}
+.links{display:flex;align-items:center;gap:26px;font-size:15px}
+.links a{text-decoration:none;color:var(--soft)}.links a:hover{color:var(--ink)}
+.btn{display:inline-block;background:var(--ink);color:#fff!important;text-decoration:none;border-radius:12px;padding:11px 20px;font-weight:600;font-size:15px;transition:.15s}
+.btn:hover{transform:translateY(-1px);background:#0b221d}
+.btn.ghost{background:transparent;color:var(--ink)!important;border:1.5px solid var(--ink)}
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;align-items:center;padding:36px 0 70px}
+h1{font-family:"Fraunces",Georgia,serif;font-weight:400;font-size:clamp(40px,6vw,72px);line-height:1;letter-spacing:-.025em;margin:0 0 20px}
+h1 em{font-style:italic;color:var(--green)}
+.lede{font-size:20px;color:var(--soft);max-width:520px;margin:0 0 28px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.art{position:relative;height:340px}
+.sheet{position:absolute;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 40px -24px rgba(18,48,42,.4);padding:18px}
+.s1{left:0;top:30px;width:56%;transform:rotate(-4deg)}
+.s2{right:0;top:120px;width:60%;transform:rotate(3deg);background:var(--card)}
+.sheet h5{margin:0 0 10px;font-family:"Fraunces",serif;font-size:15px}
+.ln{height:8px;border-radius:4px;background:#e6e2d4;margin:9px 0}
+.ln.s{width:60%}.ln.m{width:80%}
+.row{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:12px;padding:7px 0;border-top:1px solid var(--line)}
+.tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:600;font-family:"Instrument Sans"}
+.tag.ok{background:var(--greenbg);color:#14503a}.tag.rv{background:var(--amberbg);color:#7a4607}
+.arrow{position:absolute;left:44%;top:150px;width:90px;height:60px;z-index:2}
+section{padding:70px 0}
+h2{font-family:"Fraunces",Georgia,serif;font-weight:400;font-size:clamp(30px,4vw,44px);line-height:1.08;letter-spacing:-.015em;margin:0 0 14px}
+.sub{color:var(--soft);max-width:600px;margin:0 0 36px;font-size:18px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:0 12px 30px -20px rgba(18,48,42,.3)}
+.card .n{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--green);margin-bottom:12px}
+.card h3{font-family:"Fraunces",serif;font-weight:600;font-size:22px;margin:0 0 8px}
+.card p{margin:0;color:var(--soft);font-size:16px}
+.band{background:var(--ink);color:#e9f3ee;border-radius:28px;padding:54px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:30px;align-items:center}
+.band h2{color:#fff}.band p{color:#b9d1c6;margin:0 0 24px;font-size:18px}
+.band .btn{background:#fff;color:var(--ink)!important}
+.stats{display:grid;gap:14px}
+.stat{border-top:1px solid #335a4e;padding-top:12px}
+.stat b{font-family:"Fraunces",serif;font-size:34px;font-weight:400;display:block;color:#8fd1b3}
+.stat span{font-size:14px;color:#b9d1c6}
+.who{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+footer{padding:40px 0 60px;color:var(--soft);font-size:14px;text-align:center}
+@media(max-width:900px){.hero,.band,.three,.who{grid-template-columns:1fr}.art{height:380px}.links a:not(.btn){display:none}.wrap{padding:0 16px}.band{padding:30px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="index.html"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>Northfield Hardware</a>
+    <div class="links"><a href="#about">About</a><a href="#departments">Departments</a><a href="#stores">Stores</a><a class="btn" href="portal.html">Login</a></div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <h1>Everything for the job, <em>since 1974.</em></h1>
+      <p class="lede">Northfield Hardware is a family-run supplier of tools, building materials and home and garden products, serving homeowners and contractors across the region.</p>
+      <div class="cta"><a class="btn" href="#departments">Browse departments</a><a class="btn ghost" href="#stores">Find a store</a></div>
+    </div>
+    <div class="art" aria-hidden="true">
+      <div class="sheet s1"><h5>Northfield Hardware</h5><div class="ln m"></div><div class="ln"></div><div class="ln s"></div><div class="row"><span>Est.</span><span>1974</span></div></div>
+      <div class="sheet s2"><h5>This week at the counter</h5>
+        <div class="row"><span>Contractor pickup</span><span>7 am</span></div>
+        <div class="row"><span>Paint matching</span><span>All day</span></div>
+        <div class="row"><span>Free project advice</span><span>Sat</span></div>
+        <div class="row"><span>Open</span><span>7 to 7</span></div></div>
+    </div>
+  </div>
+
+  <section id="about">
+    <h2>A neighborhood hardware company that kept growing</h2>
+    <p class="sub">Northfield opened as one small shop and is still run the same way: know the products, know the customer, and keep what people need in stock.</p>
+    <div class="three">
+      <div class="card"><div class="n">01</div><h3>Know the work</h3><p>Our staff have worked the trades. Ask a question at the counter and you get an answer from someone who has done the job.</p></div>
+      <div class="card"><div class="n">02</div><h3>Stocked and ready</h3><p>Contractors get early pickup, volume pricing and a dedicated desk, so a project does not stall waiting on supplies.</p></div>
+      <div class="card"><div class="n">03</div><h3>Fair and local</h3><p>We buy from regional suppliers where we can, so the shelves stay full of what local projects actually need.</p></div>
+    </div>
+  </section>
+
+  <section id="departments">
+    <h2>Departments</h2>
+    <p class="sub">Six departments in every store, with deeper stock at our larger locations.</p>
+    <div class="who">
+      <div class="card"><h3>Tools</h3><p>Hand tools, power tools and accessories from trusted brands.</p></div>
+      <div class="card"><h3>Building materials</h3><p>Lumber, fasteners, drywall, roofing and concrete.</p></div>
+      <div class="card"><h3>Paint and finishes</h3><p>Interior and exterior paint, stains and in-store color matching.</p></div>
+      <div class="card"><h3>Plumbing and electrical</h3><p>Fittings, fixtures, wire, lighting and everything in between.</p></div>
+      <div class="card"><h3>Lawn and garden</h3><p>Seasonal plants, soil, outdoor tools and equipment.</p></div>
+      <div class="card"><h3>Office and shop supplies</h3><p>Safety gear, cleaning supplies and everyday workplace items.</p></div>
+    </div>
+  </section>
+
+  <section id="stores">
+    <div class="band">
+      <div><h2>Find your nearest store</h2><p>Six locations across the region, open 7 am to 7 pm Monday to Saturday and 9 am to 5 pm Sunday.</p></div>
+      <div class="stats"><div class="stat"><b>6 stores</b><span>across the region</span></div><div class="stat"><b>50 years</b><span>in business</span></div><div class="stat"><b>Local</b><span>family ownership</span></div></div>
+    </div>
+  </section>
+
+  <footer>Northfield Hardware is a fictional company built for a portfolio demo.</footer>
+</div>
+</body>
+</html>

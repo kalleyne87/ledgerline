@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case study: AI front desk for a dental office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#10203f;--soft:#4d5d7a;--enamel:#ffffff;--sky:#eaf1fb;--line:#d3deef;--cobalt:#0b3a9c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--enamel);color:var(--ink);font-family:"Figtree",system-ui,sans-serif;font-size:18px;line-height:1.6}
+.wrap{max-width:760px;margin:0 auto;padding:48px 24px 96px}
+a{color:var(--ink)}
+:focus-visible{outline:3px solid #d9981c;outline-offset:3px}
+h1,h2{font-family:"Newsreader",Georgia,serif;font-weight:400;letter-spacing:-.01em;line-height:1.08;color:var(--cobalt)}
+h1{font-size:clamp(34px,5vw,52px);margin:24px 0 12px}
+h2{font-size:30px;margin:48px 0 12px}
+.note{background:var(--sky);border-radius:16px;padding:16px 20px;font-size:16px;color:var(--soft)}
+ul{padding-left:20px}
+li{margin:6px 0}
+.flow{display:grid;gap:10px;margin:20px 0}
+.step{background:var(--sky);border-radius:14px;padding:14px 18px;font-size:16px}
+.step b{display:block;font-size:17px}
+.arrow{text-align:center;color:var(--soft);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html">Back to the main site</a>
+  <h1>An AI invoice desk for accounts payable</h1>
+  <p class="note">Demo project. Northfield Hardware is a fictional company built to show an internal AI document workflow for a finance team.</p>
+
+  <h2>The problem</h2>
+  <p>Vendors send invoices as PDFs in every layout. Someone on the accounts payable team has to read each one, type the numbers into a spreadsheet, check the math and decide whether it can be paid. It is slow, and typos, inconsistent vendor names and duplicate payments slip through.</p>
+
+  <h2>What I built</h2>
+  <ul>
+    <li>An internal web app where the AP team drops in vendor invoices and sees each step as it happens.</li>
+    <li>AI that reads the invoice and pulls out the vendor, dates, PO number, line items and totals.</li>
+    <li>Plain code checks that do not trust the AI: the math, the amount limit, missing PO numbers, past-due dates and duplicates.</li>
+    <li>A second AI pass that compares the extracted data to the original text, scores its confidence, flags anything that looks wrong, and cleans up small things like vendor name capitalization. Every change is shown and logged.</li>
+    <li>A human approval step for flagged invoices, from a link in Slack, with the decision shown back in the app.</li>
+    <li>Every invoice stored in the finance Google Sheet with status, AI score and changes, plus a morning Slack reminder of what is due soon.</li>
+  </ul>
+
+  <h2>How it works</h2>
+  <div class="flow">
+    <div class="step"><b>Invoice Desk</b>An AP team member drops in a vendor PDF.</div>
+    <div class="arrow">sends the file to</div>
+    <div class="step"><b>n8n workflow</b>Reads the PDF, extracts the data with Claude, reviews it with a second Claude pass, runs the checks, and replies to the app right away.</div>
+    <div class="arrow">then, in the background</div>
+    <div class="step"><b>Approval and storage</b>Clean invoices are approved automatically. Flagged ones wait for a reviewer in Slack. Everything is stored in Google Sheets.</div>
+  </div>
+
+  <h2>Design choices</h2>
+  <ul>
+    <li><b>The AI reads, the code decides.</b> The model copies numbers exactly as printed and never calculates, so a wrong total on the invoice is caught instead of silently corrected.</li>
+    <li><b>The AI is only allowed small changes.</b> The reviewer pass can tidy names and terms, but never amounts, dates or invoice numbers, and every change is recorded.</li>
+    <li><b>People stay in the loop where it matters.</b> Only flagged invoices need attention, and the reasons are listed.</li>
+    <li><b>Fast feedback.</b> The app shows the result right away while slower steps finish behind the scenes.</li>
+  </ul>
+
+  <h2>Stack</h2>
+  <p>n8n, Claude (Anthropic API), Google Sheets, Slack, a static web app.</p>
+
+  <p class="note">Want something like this for your team? Message me on Upwork.</p>
+</div>
+</body>
+</html>
