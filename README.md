@@ -1,6 +1,6 @@
-# Northfield Hardware demo: internal AP invoice desk with AI review
+# Northfield Hardware: internal AP invoice desk with AI review
 
-A portfolio demo of an internal tool for a fictional company. The accounts payable team drops in vendor invoices (PDFs). The system reads them with AI, has a second AI pass check the work, runs rule checks, stores everything in a finance Google Sheet, and sends flagged invoices to a reviewer in Slack.
+A portfolio of an internal tool for a company. The accounts payable team drops in vendor invoices (PDFs). The system reads them with AI, has a second AI pass check the work, runs rule checks, stores everything in a finance Google Sheet, and sends flagged invoices to a reviewer in Slack.
 
 ```
 site/index.html        Northfield Hardware company page (public home page, with a Login button)
